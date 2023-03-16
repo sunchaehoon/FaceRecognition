@@ -1,19 +1,37 @@
 import { NextPage } from 'next';
 import styled from '@emotion/styled';
 import { useRecoilState } from 'recoil';
-import { PreviewAtom } from '@/Atoms/state';
+import { faceInfoAtom, imgBaseAtom } from '@/Atoms/state';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+import axios, { AxiosResponse } from 'axios';
+import { useRouter } from 'next/router';
 
 const Main: NextPage = () => {
-  const [preview, setPreview] = useRecoilState(PreviewAtom);
+  const [imgBase, setImgBase] = useRecoilState(imgBaseAtom);
+  const [faceInfo, setFaceInfo] =
+    useRecoilState(faceInfoAtom);
   const fileInputRef = useRef<any>(null);
   const [image, setImage] = useState<File | null>();
+  const router = useRouter();
 
   const onChangeFile = (e: any) => {
+    e.preventDefault();
     const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result;
+      console.log('base64' + base64);
+      if (base64) {
+        setImgBase(base64.toString());
+      }
+    };
+
     if (file && file.type.substr(0, 5) === 'image') {
       setImage(file);
+      reader.readAsDataURL(file);
+      console.log(file);
     } else {
       setImage(null);
     }
@@ -24,44 +42,83 @@ const Main: NextPage = () => {
     fileInputRef.current.click();
   };
 
-  useEffect(() => {
-    if (image) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(image);
-    } else {
-      setPreview('');
+  const onSubmitFile = async (e: any) => {
+    e.preventDefault();
+    if (image == null)
+      return toast.error('사진을 선택하세요', {
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    const formData = new FormData();
+    formData.append('image', image);
+
+    // require('dotenv').config();
+
+    try {
+      const response = await axios.post(
+        '/openapi/v1/vision/face',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'X-Naver-Client-Id':
+              process.env.NEXT_PUBLIC_Client_Id,
+            'X-Naver-Client-Secret':
+              process.env.NEXT_PUBLIC_Client_Secret,
+          },
+        }
+      );
+      setFaceInfo(response.data.faces[0]);
+      console.log(response.data.faces[0]);
+      router.push('/analyzed');
+    } catch (error) {
+      console.log(error);
+      return toast(e.message, {
+        hideProgressBar: true,
+        autoClose: 1500,
+        position: toast.POSITION.TOP_RIGHT,
+      });
     }
-  }, [image]);
+  };
 
   return (
     <>
       <Wrapper>
         <ImgPreviewWrapper>
-          {preview ? (
-            // <ImgWrapper>{/* <Image  /> */}</ImgWrapper>
+          {imgBase ? (
             <ImgWrapper>
-              <img
-                src={preview}
+              {/* <Image
+                layout='fill'
+                objectFit={'cover'}
+                src={imgBase}
                 alt="이미지 사진"
-                style={{ objectFit: "cover" }}
+              /> */}
+              <img
+                style={{ objectFit: 'cover' }}
+                src={imgBase}
+                alt="이미지 사진"
               />
             </ImgWrapper>
           ) : (
             <EmptyWrapper>
               <PlusClick onClick={onClickFile} />
-              <Input
-                type="file"
-                onChange={onChangeFile}
-                ref={fileInputRef}
-                accept="image/*"
-              />
+              <form
+                name="files"
+                method="post"
+                encType="multipart/form-data"
+              >
+                <Input
+                  type="file"
+                  onChange={onChangeFile}
+                  ref={fileInputRef}
+                  //accept="image/*"
+                />
+              </form>
             </EmptyWrapper>
           )}
         </ImgPreviewWrapper>
-        <AnaBtn>분석하기</AnaBtn>
+        <AnaBtn onClick={onSubmitFile}>분석하기</AnaBtn>
       </Wrapper>
     </>
   );
