@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { FaceProps } from "@/types/analyzers";
+import { celebrityProps, FaceProps } from "@/types/analyzers";
 
 const imgBaseAtom = atom<string>({
     key: 'imgbase',
@@ -22,6 +22,16 @@ const faceInfoAtom = atom<FaceProps>({
             confidence: 0,
         },
     },
+});
+
+const celebrityAtom = atom<celebrityProps>({
+    key: "celebrity",
+    default: {
+        celebrity: {
+            value: "",
+            confidence: 0,
+        },
+    }
 })
 
-export { imgBaseAtom, faceInfoAtom };
+export { imgBaseAtom, faceInfoAtom, celebrityAtom };
