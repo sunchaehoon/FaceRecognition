@@ -12,7 +12,7 @@ const Header:NextPage = () => {
     return (
         <>
             <Wrapper>
-                <HeaderTitle>
+                <HeaderTitle onClick={() => {router.push("/")}}>
                     Face Analyzer
                 </HeaderTitle>
             </Wrapper>
