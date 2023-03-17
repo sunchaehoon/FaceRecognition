@@ -16,8 +16,8 @@ p {
 }
 
 * {
-  /* user-select: none; */
-  /* box-sizing: border-box; */
+  user-select: none;
+  box-sizing: border-box;
 }
 
 @media screen and (max-width: 768px) {
