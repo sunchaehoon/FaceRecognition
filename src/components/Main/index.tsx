@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import styled from '@emotion/styled';
 import { useRecoilState } from 'recoil';
-import { faceInfoAtom, imgBaseAtom } from '@/Atoms/state';
+import { faceInfoAtom, imgBaseAtom, celebrityAtom } from '@/Atoms/state';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -10,8 +10,8 @@ import { useRouter } from 'next/router';
 
 const Main: NextPage = () => {
   const [imgBase, setImgBase] = useRecoilState(imgBaseAtom);
-  const [faceInfo, setFaceInfo] =
-    useRecoilState(faceInfoAtom);
+  const [faceInfo, setFaceInfo] = useRecoilState(faceInfoAtom);
+  const [celebrity, setCelebrity] = useRecoilState(celebrityAtom);
   const fileInputRef = useRef<any>(null);
   const [image, setImage] = useState<File | null>();
   const router = useRouter();
@@ -53,24 +53,27 @@ const Main: NextPage = () => {
     const formData = new FormData();
     formData.append('image', image);
 
-    // require('dotenv').config();
-
     try {
-      const response = await axios.post(
-        '/openapi/v1/vision/face',
+      const response1 = await axios.post('/openapi/v1/vision/face', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'X-Naver-Client-Id': process.env.NEXT_PUBLIC_Client_Id,
+          'X-Naver-Client-Secret': process.env.NEXT_PUBLIC_Client_Secret,
+        },
+      });
+      const response2 = await axios.post(
+        '/openapi/v1/vision/celebrity',
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'X-Naver-Client-Id':
-              process.env.NEXT_PUBLIC_Client_Id,
-            'X-Naver-Client-Secret':
-              process.env.NEXT_PUBLIC_Client_Secret,
+            'X-Naver-Client-Id': process.env.NEXT_PUBLIC_Client_Id,
+            'X-Naver-Client-Secret': process.env.NEXT_PUBLIC_Client_Secret,
           },
         }
       );
-      setFaceInfo(response.data.faces[0]);
-      console.log(response.data.faces[0]);
+      setFaceInfo(response1.data.faces[0]);
+      setCelebrity(response2.data.faces[0]);
       router.push('/analyzed');
     } catch (error) {
       console.log(error);
@@ -88,26 +91,17 @@ const Main: NextPage = () => {
         <ImgPreviewWrapper>
           {imgBase ? (
             <ImgWrapper>
-              {/* <Image
-                layout='fill'
-                objectFit={'cover'}
+              <Image
                 src={imgBase}
-                alt="이미지 사진"
-              /> */}
-              <img
-                style={{ objectFit: 'cover' }}
-                src={imgBase}
+                layout="fill"
+                objectFit='cover'
                 alt="이미지 사진"
               />
             </ImgWrapper>
           ) : (
             <EmptyWrapper>
               <PlusClick onClick={onClickFile} />
-              <form
-                name="files"
-                method="post"
-                encType="multipart/form-data"
-              >
+              <form name="files" method="post" encType="multipart/form-data">
                 <Input
                   type="file"
                   onChange={onChangeFile}
@@ -133,7 +127,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 40px;
 `;
 
 const ImgPreviewWrapper = styled.div`
@@ -146,8 +140,8 @@ const ImgPreviewWrapper = styled.div`
 `;
 
 const EmptyWrapper = styled.div`
-  width: 40%;
-  height: 85%;
+  width: 43%;
+  height: 90%;
   background-color: #393e46;
   box-shadow: rgba(222, 222, 222, 0.3) 0px 7px 29px 0;
   border: 1px solid white;
@@ -190,8 +184,8 @@ const AnaBtn = styled.button`
   color: white;
 
   :hover {
-    background-color: #009ba2;
-    transition-duration: 0.1s;
+    background-color: #008a90;
+    transition-duration: 0.15s;
   }
 `;
 
@@ -208,6 +202,9 @@ const ImgWrapper = styled.div`
   align-items: center;
   border-radius: 10px;
   box-shadow: rgba(255, 255, 255, 0.2) 0px 8px 24px;
+  overflow: hidden;
+  width: 43%;
+  padding-bottom: 45%;
 `;
 
 export default Main;
