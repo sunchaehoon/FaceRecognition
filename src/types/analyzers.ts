@@ -12,3 +12,10 @@ export interface FaceProps {
         confidence: number,
     },
 }
+
+export interface celebrityProps {
+    celebrity: {
+        value: string,
+        confidence: number,
+    },
+}
