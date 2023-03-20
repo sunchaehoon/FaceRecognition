@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 
-const analyzed = () => {
+const Analyzed = () => {
   const [imgBase, setImgBase] = useRecoilState(imgBaseAtom);
   const [faceInfo, setFaceInfo] = useRecoilState(faceInfoAtom);
   const [celebrity, setCelebrity] = useRecoilState(celebrityAtom);
@@ -145,4 +145,4 @@ const Content = styled.div`
   font-size: 1.7rem;
 `;
 
-export default analyzed;
+export default Analyzed;
