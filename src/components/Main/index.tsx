@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosResponse } from 'axios';
 import { useRouter } from 'next/router';
+import Skeleton from 'react-loading-skeleton';
+import Loading from '../Loading';
 
 const Main: NextPage = () => {
   const [imgBase, setImgBase] = useRecoilState(imgBaseAtom);
@@ -15,6 +17,8 @@ const Main: NextPage = () => {
   const fileInputRef = useRef<any>(null);
   const [image, setImage] = useState<File | null>();
   const router = useRouter();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onChangeFile = (e: any) => {
     e.preventDefault();
@@ -44,12 +48,15 @@ const Main: NextPage = () => {
 
   const onSubmitFile = async (e: any) => {
     e.preventDefault();
-    if (image == null)
+    setLoading(true);
+    if (image == null) {
+      setLoading(false);
       return toast.error('사진을 선택하세요', {
         hideProgressBar: true,
         autoClose: 1500,
         position: toast.POSITION.TOP_RIGHT,
       });
+    }
     const formData = new FormData();
     formData.append('image', image);
 
@@ -72,9 +79,16 @@ const Main: NextPage = () => {
           },
         }
       );
-      setFaceInfo(response1.data.faces[0]);
-      setCelebrity(response2.data.faces[0]);
-      router.push('/analyzed');
+      if (response1.data.faces[0] && response2.data.faces[0]) {
+        setFaceInfo(response1.data.faces[0]);
+        setCelebrity(response2.data.faces[0]);
+        setLoading(false);
+        router.push('/analyzed');
+      } else {
+        setLoading(false);
+        alert('사진이 올바르지 않습니다');
+        setImgBase('');
+      }
     } catch (error) {
       console.log(error);
       return toast(e.message, {
@@ -87,6 +101,7 @@ const Main: NextPage = () => {
 
   return (
     <>
+      {loading ? <Loading /> : null}
       <Wrapper>
         <ImgPreviewWrapper>
           {imgBase ? (
@@ -94,7 +109,7 @@ const Main: NextPage = () => {
               <Image
                 src={imgBase}
                 layout="fill"
-                objectFit='cover'
+                objectFit="cover"
                 alt="이미지 사진"
               />
             </ImgWrapper>
