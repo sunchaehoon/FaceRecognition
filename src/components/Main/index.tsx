@@ -83,7 +83,7 @@ const Main: NextPage = () => {
         setFaceInfo(response1.data.faces[0]);
         setCelebrity(response2.data.faces[0]);
         setLoading(false);
-        router.push('/analyzed');
+        router.push('/Analyzed');
       } else {
         setLoading(false);
         alert('사진이 올바르지 않습니다');
