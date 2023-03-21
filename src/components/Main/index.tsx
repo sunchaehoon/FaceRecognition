@@ -26,7 +26,6 @@ const Main: NextPage = () => {
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result;
-      console.log('base64' + base64);
       if (base64) {
         setImgBase(base64.toString());
       }
