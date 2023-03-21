@@ -59,7 +59,7 @@ const Main: NextPage = () => {
     formData.append('image', image);
 
     try {
-      const response1 = await axios.post('https://openapi.naver.com/v1/vision/face', formData, {
+      const response1 = await axios.post('v1/vision/face', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-Naver-Client-Id': process.env.NEXT_PUBLIC_Client_Id,
@@ -67,7 +67,7 @@ const Main: NextPage = () => {
         },
       });
       const response2 = await axios.post(
-        'https://openapi.naver.com/v1/vision/celebrity',
+        'v1/vision/celebrity',
         formData,
         {
           headers: {
