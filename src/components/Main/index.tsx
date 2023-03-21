@@ -34,7 +34,6 @@ const Main: NextPage = () => {
     if (file && file.type.substr(0, 5) === 'image') {
       setImage(file);
       reader.readAsDataURL(file);
-      console.log(file);
     } else {
       setImage(null);
     }
