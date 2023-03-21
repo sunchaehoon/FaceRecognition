@@ -5,7 +5,7 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/openapi/:path*',
+        source: '/:path*',
         destination: `https://openapi.naver.com/:path*`,
       },
     ];
